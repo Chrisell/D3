@@ -10232,20 +10232,20 @@ if ( typeof module === "object" && module && typeof module.exports === "object" 
         };
         colors = d3.scale.linear().domain([1, 100]).range(['yellow', 'red']);
         bodySelection = d3.select("body");
-        svgSelection = bodySelection.append("svg").attr("width", 1200).attr("height", 800);
+        svgSelection = bodySelection.append("svg").attr("width", 1200).attr("height", 600);
         gasData = data.dates;
         circles = svgSelection.selectAll("circle").data(gasData).enter().append("rect").on('mousemove', myMouseMoveFunction);
         circleAttributes = circles.attr("x", function(d, index) {
           return index * 2;
-        }).attr("y", 800).attr("width", 2).attr("height", 0).style("fill", 'white').on("mouseout", myMouseOutFunction).on("mouseover", myMouseOverFunction);
+        }).attr("y", 600).attr("width", 2).attr("height", 0).style("fill", 'white').on("mouseout", myMouseOutFunction).on("mouseover", myMouseOverFunction);
         return circles.transition().delay(function(d, index) {
           return index * 10;
         }).attr("x", function(d, index) {
           return index * 2;
         }).attr("height", function(d) {
-          return 800 - (800 / d.price);
+          return 600 - (600 / d.price);
         }).attr("y", function(d) {
-          return 800 / d.price;
+          return 600 / d.price;
         }).attr("width", 2).style("fill", function(d) {
           return colors(Math.round(d.price * 20));
         });
