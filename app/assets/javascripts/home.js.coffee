@@ -4,7 +4,7 @@
 $(document).ready ->
   $.ajax 'data.json',
     success: (data, status, xhr) ->
-      color = d3.rgb(0,0,0)
+      colors = d3.scale.linear().domain([1,100]).range(['yellow','red'])
       bodySelection = d3.select("body")
       svgSelection = bodySelection.append("svg")
                             .attr("width", 1200)
@@ -19,14 +19,14 @@ $(document).ready ->
                        .attr("cx", (d,index) -> return index * 2)
                        .attr("cy", (d) -> return 800)
                        .attr("r", (d) -> return 0)
-                       .style("fill", color)
+                       .style("fill", 'white')
                        .style("opacity",0.4)
       circles.transition()
                        .delay((d,index) ->index * 10)
                        .attr("cx", (d,index) -> return index * 2)
                        .attr("cy", (d) -> return 800/d.price)
                        .attr("r", (d) -> return d.price*5)
-                       .style("fill", color)
+                       .style("fill", (d) -> colors(Math.round(d.price*20)))
                        .style("opacity",0.4)
 
     error: (xhr, status, err) ->
