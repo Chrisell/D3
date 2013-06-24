@@ -10205,6 +10205,32 @@ if ( typeof module === "object" && module && typeof module.exports === "object" 
       success: function(data, status, xhr) {
         var bodySelection, circleAttributes, circles, colors, gasData, myMouseMoveFunction, myMouseOutFunction, myMouseOverFunction, svgSelection;
 
+        $('input[type=radio]').change(function(e) {
+          console.log($(this).val());
+          if ($(this).val() === '1') {
+            return circles.transition().delay(function(d, index) {
+              return index * 10;
+            }).attr("x", function(d, index) {
+              return index * 2;
+            }).attr("rx", 5).attr("ry", 5).attr("height", 10).attr("y", function(d) {
+              return 600 / d.price;
+            }).attr("width", 10).style("fill", function(d) {
+              return colors(Math.round(d.price * 20));
+            });
+          } else if ($(this).val() === '0') {
+            return circles.transition().delay(function(d, index) {
+              return index * 10;
+            }).attr("x", function(d, index) {
+              return index * 2;
+            }).attr("height", function(d) {
+              return 600 - (600 / d.price);
+            }).attr("y", function(d) {
+              return 600 / d.price;
+            }).attr("width", 2).style("fill", function(d) {
+              return colors(Math.round(d.price * 20));
+            });
+          }
+        });
         myMouseOverFunction = function() {
           var circle, circleData;
 
@@ -10234,7 +10260,7 @@ if ( typeof module === "object" && module && typeof module.exports === "object" 
         bodySelection = d3.select("body");
         svgSelection = bodySelection.append("svg").attr("width", 1200).attr("height", 600);
         gasData = data.dates;
-        circles = svgSelection.selectAll("circle").data(gasData).enter().append("rect").on('mousemove', myMouseMoveFunction);
+        circles = svgSelection.selectAll("rect").data(gasData).enter().append("rect").on('mousemove', myMouseMoveFunction);
         circleAttributes = circles.attr("x", function(d, index) {
           return index * 2;
         }).attr("y", 600).attr("width", 2).attr("height", 0).style("fill", 'white').on("mouseout", myMouseOutFunction).on("mouseover", myMouseOverFunction);

@@ -18,6 +18,13 @@ body {
 }
 
 /* line 7, ../../app/assets/stylesheets/home.css.scss */
+fieldset {
+  color: #FFFFFF;
+  border: none;
+  font-family: Helvetica;
+}
+
+/* line 12, ../../app/assets/stylesheets/home.css.scss */
 .infobox {
   display: none;
   color: white;
@@ -32,7 +39,7 @@ body {
   border: 2px solid rgba(255, 255, 255, 0.75);
 }
 
-/* line 20, ../../app/assets/stylesheets/home.css.scss */
+/* line 25, ../../app/assets/stylesheets/home.css.scss */
 svg {
   margin: auto;
 }

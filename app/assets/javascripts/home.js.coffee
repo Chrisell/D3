@@ -4,6 +4,26 @@
 $(document).ready ->
   $.ajax 'data.json',
     success: (data, status, xhr) ->
+      $('input[type=radio]').change (e) ->
+        console.log($(this).val())
+        if ($(this).val() == '1')
+          circles.transition()
+            .delay((d,index) ->index * 10)
+            .attr("x", (d,index) -> return index * 2)
+            .attr("rx", 5)
+            .attr("ry", 5)
+            .attr("height", 10)
+            .attr("y", (d) -> return 600/d.price)
+            .attr("width", 10)
+            .style("fill", (d) -> colors(Math.round(d.price*20)))
+        else if ($(this).val() == '0')
+          circles.transition()
+            .delay((d,index) ->index * 10)
+            .attr("x", (d,index) -> return index * 2)
+            .attr("height", (d) -> return 600-(600/d.price))
+            .attr("y", (d) -> return 600/d.price)
+            .attr("width", 2)
+            .style("fill", (d) -> colors(Math.round(d.price*20)))
       myMouseOverFunction = ->
         circle = d3.select(this)
         circle.transition().style('fill','white')
@@ -27,7 +47,7 @@ $(document).ready ->
                             .attr("height", 600)
       gasData = data.dates
 
-      circles = svgSelection.selectAll("circle")
+      circles = svgSelection.selectAll("rect")
                           .data(gasData)
                           .enter()
                           .append("rect")
