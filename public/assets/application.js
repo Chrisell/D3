@@ -10206,15 +10206,22 @@ if ( typeof module === "object" && module && typeof module.exports === "object" 
         var bodySelection, circleAttributes, circles, colors, gasData, myMouseMoveFunction, myMouseOutFunction, myMouseOverFunction, svgSelection;
 
         $('input[type=radio]').change(function(e) {
-          console.log($(this).val());
           if ($(this).val() === '1') {
             return circles.transition().delay(function(d, index) {
               return index * 10;
             }).attr("x", function(d, index) {
               return index * 2;
-            }).attr("rx", 5).attr("ry", 5).attr("height", 10).attr("y", function(d) {
+            }).attr("y", function(d) {
               return 600 / d.price;
-            }).attr("width", 10).style("fill", function(d) {
+            }).attr("rx", function(d) {
+              return (d.price * 5) / 2;
+            }).attr("ry", function(d) {
+              return (d.price * 5) / 2;
+            }).attr("height", function(d) {
+              return d.price * 5;
+            }).attr("width", function(d) {
+              return d.price * 5;
+            }).style("fill", function(d) {
               return colors(Math.round(d.price * 20));
             });
           } else if ($(this).val() === '0') {
@@ -10257,9 +10264,9 @@ if ( typeof module === "object" && module && typeof module.exports === "object" 
           return infobox.transition().style("left", (this.getAttribute('x') - 100) + 'px').style("top", (this.getAttribute('y') - 40) + 'px');
         };
         colors = d3.scale.linear().domain([1, 100]).range(['yellow', 'red']);
+        gasData = data.dates;
         bodySelection = d3.select("body");
         svgSelection = bodySelection.append("svg").attr("width", 1200).attr("height", 600);
-        gasData = data.dates;
         circles = svgSelection.selectAll("rect").data(gasData).enter().append("rect").on('mousemove', myMouseMoveFunction);
         circleAttributes = circles.attr("x", function(d, index) {
           return index * 2;
