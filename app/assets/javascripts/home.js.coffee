@@ -24,7 +24,7 @@ $(document).ready ->
       bodySelection = d3.select("body")
       svgSelection = bodySelection.append("svg")
                             .attr("width", 1200)
-                            .attr("height", 800)
+                            .attr("height", 600)
       gasData = data.dates
 
       circles = svgSelection.selectAll("circle")
@@ -34,7 +34,7 @@ $(document).ready ->
                           .on('mousemove', myMouseMoveFunction)
       circleAttributes = circles
                        .attr("x", (d,index) -> return index * 2)
-                       .attr("y", 800)
+                       .attr("y", 600)
                        .attr("width", 2)
                        .attr("height",0)
                        .style("fill", 'white')
@@ -43,8 +43,8 @@ $(document).ready ->
       circles.transition()
                        .delay((d,index) ->index * 10)
                        .attr("x", (d,index) -> return index * 2)
-                       .attr("height", (d) -> return 800-(800/d.price))
-                       .attr("y", (d) -> return 800/d.price)
+                       .attr("height", (d) -> return 600-(600/d.price))
+                       .attr("y", (d) -> return 600/d.price)
                        .attr("width", 2)
                        .style("fill", (d) -> colors(Math.round(d.price*20)))
 
