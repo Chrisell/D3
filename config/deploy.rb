@@ -6,7 +6,7 @@ set :application, "D3"
 set :repository,  "git@github.com:Chrisell/D3.git"
 
 set :rvm_type, :system
-set :rvm_ruby_string, '2.0.0-p0'
+set :rvm_ruby_string, '2.0.0@D3'
 
 set :scm, :git
 set :branch, "master"
