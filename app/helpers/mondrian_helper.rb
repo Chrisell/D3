@@ -1,0 +1,2 @@
+module MondrianHelper
+end

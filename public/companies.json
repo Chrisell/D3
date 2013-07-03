@@ -1,0 +1,8 @@
+{
+  "companies": [
+    {"company": "Facebook", "percent": "20"},
+    {"company": "Twitter", "percent": "10"},
+    {"company": "Reddit", "percent": "10"},
+    {"company": "Google", "percent": "60"}
+  ]
+}

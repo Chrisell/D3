@@ -10201,95 +10201,175 @@ if ( typeof module === "object" && module && typeof module.exports === "object" 
 })( jQuery );
 (function() {
   $(document).ready(function() {
-    return $.ajax('data.json', {
-      success: function(data, status, xhr) {
-        var bodySelection, circleAttributes, circles, colors, gasData, myMouseMoveFunction, myMouseOutFunction, myMouseOverFunction, svgSelection;
+    if ($('.bars').length > 0) {
+      return $.ajax('data.json', {
+        success: function(data, status, xhr) {
+          var bodySelection, circleAttributes, circles, colors, gas, gasData, highestPrice, lowestPrice, myMouseMoveFunction, myMouseOutFunction, myMouseOverFunction, svgHeight, svgSelection;
 
-        $('input[type=radio]').change(function(e) {
-          if ($(this).val() === '1') {
-            return circles.transition().delay(function(d, index) {
-              return index * 10;
-            }).attr("x", function(d, index) {
-              return index * 2;
-            }).attr("y", function(d) {
-              return 600 / d.price;
-            }).attr("rx", function(d) {
-              return (d.price * 5) / 2;
-            }).attr("ry", function(d) {
-              return (d.price * 5) / 2;
-            }).attr("height", function(d) {
-              return d.price * 5;
-            }).attr("width", function(d) {
-              return d.price * 5;
-            }).style("fill", function(d) {
+          gas = d3.nest().key(function(d) {
+            return d.date;
+          }).entries(data.dates);
+          gas.forEach(function(s) {
+            return s.basePrice = d3.sum(s.values, function(d) {
+              return d.price;
+            });
+          });
+          gas.sort(function(a, b) {
+            return a.basePrice - b.basePrice;
+          });
+          lowestPrice = gas[0].basePrice;
+          highestPrice = gas[gas.length - 1].basePrice;
+          svgHeight = 600;
+          $('input[type=radio]').change(function(e) {
+            if ($(this).val() === '1') {
+              return circles.transition().delay(function(d, index) {
+                return index * 10;
+              }).attr("x", function(d, index) {
+                return index * 2;
+              }).attr("y", function(d) {
+                return svgHeight / d.price;
+              }).attr("rx", function(d) {
+                return (d.price * 5) / 2;
+              }).attr("ry", function(d) {
+                return (d.price * 5) / 2;
+              }).attr("height", function(d) {
+                return d.price * 5;
+              }).attr("width", function(d) {
+                return d.price * 5;
+              }).style("fill", function(d) {
+                return colors(Math.round(d.price * 20));
+              });
+            } else if ($(this).val() === '0') {
+              return circles.transition().delay(function(d, index) {
+                return index * 10;
+              }).attr("x", function(d, index) {
+                return index * 2;
+              }).attr("height", function(d) {
+                return svgHeight - (svgHeight / d.price);
+              }).attr("y", function(d) {
+                return svgHeight / d.price;
+              }).attr("width", 2).style("fill", function(d) {
+                return colors(Math.round(d.price * 20));
+              });
+            } else if ($(this).val() === '2') {
+              return circles.transition().delay(function(d, index) {
+                return index * 10;
+              }).attr("x", function(d, index) {
+                return index * 2;
+              }).attr("height", function(d) {
+                return svgHeight - (svgHeight / d.price);
+              }).attr("y", function(d) {
+                console.log((svgHeight / 2) + ((svgHeight - (svgHeight / d.price)) / 2));
+                return (svgHeight / d.price) / 2;
+              }).attr("width", 2).style("fill", function(d) {
+                return colors(Math.round(d.price * 20));
+              });
+            }
+          });
+          myMouseOverFunction = function() {
+            var circle, circleData;
+
+            circle = d3.select(this);
+            circle.transition().style('fill', 'white');
+            circleData = d3.select(this).data();
+            d3.select(".infobox").style("display", "block");
+            return d3.select("p").text("The price of gas on " + circleData[0].date + " was $" + circleData[0].price);
+          };
+          myMouseOutFunction = function() {
+            var circle;
+
+            circle = d3.select(this);
+            circle.transition().style("fill", function(d) {
               return colors(Math.round(d.price * 20));
             });
-          } else if ($(this).val() === '0') {
-            return circles.transition().delay(function(d, index) {
-              return index * 10;
-            }).attr("x", function(d, index) {
-              return index * 2;
-            }).attr("height", function(d) {
-              return 600 - (600 / d.price);
-            }).attr("y", function(d) {
-              return 600 / d.price;
-            }).attr("width", 2).style("fill", function(d) {
-              return colors(Math.round(d.price * 20));
-            });
-          }
-        });
-        myMouseOverFunction = function() {
-          var circle, circleData;
+            return d3.select(".infobox").style("display", "none");
+          };
+          myMouseMoveFunction = function() {
+            var infobox;
 
-          circle = d3.select(this);
-          circle.transition().style('fill', 'white');
-          circleData = d3.select(this).data();
-          d3.select(".infobox").style("display", "block");
-          return d3.select("p").text("The price of gas on " + circleData[0].date + " was $" + circleData[0].price);
-        };
-        myMouseOutFunction = function() {
-          var circle;
-
-          circle = d3.select(this);
-          circle.transition().style("fill", function(d) {
+            infobox = d3.select(".infobox");
+            return infobox.transition().style("left", (this.getAttribute('x') - 100) + 'px').style("top", (this.getAttribute('y') - 40) + 'px');
+          };
+          colors = d3.scale.linear().domain([1, 100]).range(['yellow', 'red']);
+          gasData = data.dates;
+          bodySelection = d3.select("body");
+          svgSelection = bodySelection.append("svg").attr("width", 1200).attr("height", svgHeight);
+          circles = svgSelection.selectAll("rect").data(gasData).enter().append("rect").on('mousemove', myMouseMoveFunction);
+          circleAttributes = circles.attr("x", function(d, index) {
+            return index * 2;
+          }).attr("y", svgHeight).attr("width", 2).attr("height", 0).style("fill", 'white').on("mouseout", myMouseOutFunction).on("mouseover", myMouseOverFunction);
+          circles.transition().delay(function(d, index) {
+            return index * 10;
+          }).attr("x", function(d, index) {
+            return index * 2;
+          }).attr("height", function(d) {
+            return svgHeight - (svgHeight / d.price);
+          }).attr("y", function(d) {
+            return svgHeight / d.price;
+          }).attr("width", 2).style("fill", function(d) {
             return colors(Math.round(d.price * 20));
           });
-          return d3.select(".infobox").style("display", "none");
-        };
-        myMouseMoveFunction = function() {
-          var infobox;
+          return {
+            error: function(xhr, status, err) {
+              return console.log("nah " + err);
+            },
+            complete: function(xhr, status) {
+              return console.log("comp");
+            }
+          };
+        }
+      });
+    }
+  });
 
-          infobox = d3.select(".infobox");
-          console.log(infobox);
-          return infobox.transition().style("left", (this.getAttribute('x') - 100) + 'px').style("top", (this.getAttribute('y') - 40) + 'px');
-        };
-        colors = d3.scale.linear().domain([1, 100]).range(['yellow', 'red']);
-        gasData = data.dates;
-        bodySelection = d3.select("body");
-        svgSelection = bodySelection.append("svg").attr("width", 1200).attr("height", 600);
-        circles = svgSelection.selectAll("rect").data(gasData).enter().append("rect").on('mousemove', myMouseMoveFunction);
-        circleAttributes = circles.attr("x", function(d, index) {
-          return index * 2;
-        }).attr("y", 600).attr("width", 2).attr("height", 0).style("fill", 'white').on("mouseout", myMouseOutFunction).on("mouseover", myMouseOverFunction);
-        return circles.transition().delay(function(d, index) {
-          return index * 10;
-        }).attr("x", function(d, index) {
-          return index * 2;
-        }).attr("height", function(d) {
-          return 600 - (600 / d.price);
-        }).attr("y", function(d) {
-          return 600 / d.price;
-        }).attr("width", 2).style("fill", function(d) {
-          return colors(Math.round(d.price * 20));
-        });
-      },
-      error: function(xhr, status, err) {
-        return console.log("nah " + err);
-      },
-      complete: function(xhr, status) {
-        return console.log("comp");
-      }
-    });
+}).call(this);
+(function() {
+  $(document).ready(function() {
+    if ($('.mondrian').length > 0) {
+      return $.ajax('companies.json', {
+        success: function(data, status, xhr) {
+          var bodySelection, circleAttributes, circles, colors, eleFactor, eleWidth, gasData, height, svgSelection, width;
+
+          height = width = 400;
+          eleFactor = (Math.random() * width) + 1;
+          eleWidth = width - eleFactor;
+          colors = ['yellow', 'red', 'blue', 'white'];
+          gasData = data.companies;
+          bodySelection = d3.select("body");
+          svgSelection = bodySelection.append("svg").attr("width", width).attr("height", height);
+          circles = svgSelection.selectAll("rect").data(gasData).enter().append("rect");
+          return circleAttributes = circles.attr("x", function(d, index) {
+            if ((index + 2) % 2 === 0) {
+              return 0;
+            } else {
+              return eleWidth;
+            }
+          }).attr("y", function(d, index) {
+            if (index < 2) {
+              return d.percent / 100 * 400;
+            } else {
+              return console.log(circles[index - 2]);
+            }
+          }).attr("height", function(d) {
+            return (d.percent / 100) * 400;
+          }).attr("width", function(d, index) {
+            if ((index + 2) % 2 === 0) {
+              return eleWidth;
+            } else {
+              return eleFactor;
+            }
+          }).style("fill", function(d, index) {
+            return colors[index];
+          }).style("stroke", "black").style("stroke-width", "5");
+        },
+        error: function(xhr, status, err) {
+          return console.log("nah " + err);
+        },
+        complete: function(xhr, status) {
+          return console.log("comp");
+        }
+      });
+    }
   });
 
 }).call(this);
