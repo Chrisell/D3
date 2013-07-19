@@ -10,15 +10,16 @@ $(document).ready ->
               .entries(data.result)
       console.log(nested_data)
       svgHeight = 600
-
+      nested_data.forEach((s) ->
+        s.median = d3.sum(s.values, (d) -> return d.balance)
+      )
 
       myMouseOverFunction = ->
         circle = d3.select(this)
         circle.transition().style('fill','white')
         circleData = d3.select(this).data()
         d3.select(".infobox").style("display", "block")
-        d3.select("p").text("The total of the order was $" + item_data[0].balance)
-
+        d3.select("p").text("The total of the order was $" + circleData[0].values[0].balance)
       myMouseOutFunction = ->
         circle = d3.select(this)
         circle.transition().style("fill", (d) -> colors(Math.round(d.values[0].balance*20)))
