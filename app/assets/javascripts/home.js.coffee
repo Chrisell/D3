@@ -3,59 +3,25 @@
 # You can use CoffeeScript in this file: http://jashkenas.github.com/coffee-script/
 $(document).ready ->
   if ($('.bars').length > 0)
-    $.ajax 'data.json',
+    $.ajax 'orders.json',
     success: (data, status, xhr) ->
-      gas = d3.nest()
-              .key( (d) -> return d.date)
-              .entries(data.dates)
-      gas.forEach((s) ->
-        s.basePrice = d3.sum(s.values, (d) -> return d.price)
-      )
-      gas.sort((a, b) -> return a.basePrice - b.basePrice)
-      lowestPrice = gas[0].basePrice
-      highestPrice = gas[gas.length - 1].basePrice
+      nested_data = d3.nest()
+              .key( (d) -> return d.id)
+              .entries(data.result)
+      console.log(nested_data)
       svgHeight = 600
-      $('input[type=radio]').change (e) ->
-        if ($(this).val() == '1')
-          circles.transition()
-            .delay((d,index) ->index * 10)
-            .attr("x", (d,index) -> return index * 2)
-            .attr("y", (d) -> return svgHeight/d.price)
-            .attr("rx", (d) -> return (d.price * 5)/2)
-            .attr("ry", (d) -> return (d.price * 5)/2)
-            .attr("height", (d) -> return d.price * 5)
-            .attr("width", (d) -> return d.price * 5)
-            .style("fill", (d) -> colors(Math.round(d.price*20)))
-        else if ($(this).val() == '0')
-          circles.transition()
-            .delay((d,index) ->index * 10)
-            .attr("x", (d,index) -> return index * 2)
-            .attr("height", (d) -> return svgHeight-(svgHeight/d.price))
-            .attr("y", (d) -> return svgHeight/d.price)
-            .attr("width", 2)
-            .style("fill", (d) -> colors(Math.round(d.price*20)))
-        else if ($(this).val() == '2')
-          circles.transition()
-            .delay((d,index) ->index * 10)
-            .attr("x", (d,index) -> return index * 2)
-            .attr("height", (d) -> return svgHeight-(svgHeight/d.price))
-            .attr("y", (d) ->
-              console.log((svgHeight/2) + ((svgHeight-(svgHeight/d.price))/2))
-              return ((svgHeight/d.price)/2)
-            )
-            .attr("width", 2)
-            .style("fill", (d) -> colors(Math.round(d.price*20)))
+
 
       myMouseOverFunction = ->
         circle = d3.select(this)
         circle.transition().style('fill','white')
         circleData = d3.select(this).data()
         d3.select(".infobox").style("display", "block")
-        d3.select("p").text("The price of gas on " + circleData[0].date + " was $" + circleData[0].price)
+        d3.select("p").text("The total of the order was $" + item_data[0].balance)
 
       myMouseOutFunction = ->
         circle = d3.select(this)
-        circle.transition().style("fill", (d) -> colors(Math.round(d.price*20)))
+        circle.transition().style("fill", (d) -> colors(Math.round(d.values[0].balance*20)))
         d3.select(".infobox").style("display", "none")
 
       myMouseMoveFunction = ->
@@ -65,7 +31,6 @@ $(document).ready ->
         .style("top", (this.getAttribute('y') - 40) + 'px')
 
       colors = d3.scale.linear().domain([1,100]).range(['yellow','red'])
-      gasData = data.dates
 
       bodySelection = d3.select("body")
 
@@ -75,7 +40,7 @@ $(document).ready ->
 
 
       circles = svgSelection.selectAll("rect")
-                          .data(gasData)
+                          .data(nested_data)
                           .enter()
                           .append("rect")
                           .on('mousemove', myMouseMoveFunction)
@@ -92,12 +57,12 @@ $(document).ready ->
       circles.transition()
                        .delay((d,index) ->index * 10)
                        .attr("x", (d,index) -> return index * 2)
-                       .attr("height", (d) -> return svgHeight-(svgHeight/d.price))
-                       .attr("y", (d) -> return svgHeight/d.price)
+                       .attr("height", (d) -> return svgHeight-(svgHeight/d.values[0].balance))
+                       .attr("y", (d) -> return svgHeight/d.values[0].balance)
                        .attr("width", 2)
-                       .style("fill", (d) -> colors(Math.round(d.price*20)))
+                       .style("fill", (d) -> colors(Math.round(d.values[0].balance*20)))
 
-      error: (xhr, status, err) ->
-        console.log("nah "+err)
-      complete : (xhr, status) ->
-        console.log("comp")
+    error: (xhr, status, err) ->
+      console.log("nah "+err)
+    complete : (xhr, status) ->
+      console.log("comp")
