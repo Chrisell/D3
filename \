@@ -1,0 +1,27 @@
+# Place all the behaviors and hooks related to the matching controller here.
+# All this logic will automatically be available in application.js.
+# You can use CoffeeScript in this file: http://jashkenas.github.com/coffee-script/
+$ ->
+  if ($('.inputs').length > 0)
+    $('#one').keyup () ->
+      value = parseInt($(@).val())
+      circles.transition()
+        .attr('width', value)
+        .attr('height', value)
+    colors = d3.scale.linear().domain([1,100]).range(['yellow','red'])
+
+    bodySelection = d3.select("body")
+
+    svgSelection = bodySelection.append("svg")
+                          .attr("width", 800)
+                          .attr("height",600)
+
+
+    circles = svgSelection.append("rect")
+
+    circleAttributes = circles
+                     .attr("x", 0)
+                     .attr("y", 0)
+                     .attr("width", 2)
+                     .attr("height",2)
+                     .style("fill", 'red')

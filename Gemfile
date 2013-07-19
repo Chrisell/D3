@@ -20,6 +20,11 @@ group :assets do
   gem 'uglifier', '>= 1.0.3'
 end
 
+group :development do
+  gem 'guard'
+  gem 'guard-livereload'
+end
+
 gem 'jquery-rails'
 gem 'haml-rails'
 gem 'html2haml'
