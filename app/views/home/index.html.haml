@@ -1,7 +1,8 @@
-%fieldset
-  %input{ type: 'radio', value: '0', name: 'style', checked: true }Bar
-  %input{ type: 'radio', value: '1', name: 'style' }Circles
-  %input{ type: 'radio', value: '2', name: 'style' } Streamgraph
+%form
+  %label
+    %input{:type => "radio", :name => "mode", :value => "grouped"} Grouped
+  %label
+    %input{:type => "radio", :name => "mode", :value => "stacked"} Stacked
 .infobox
   %p
 .bars
