@@ -5,63 +5,61 @@ $(document).ready ->
   if ($('.bars').length > 0)
     $.ajax 'orders.json',
     success: (data, status, xhr) ->
-      nested_data = d3.nest()
-              .key( (d) -> return d.id)
-              .entries(data.result)
-      console.log(nested_data)
+
+      # Constants
       svgHeight = 600
-      nested_data.forEach((s) ->
-        s.median = d3.sum(s.values, (d) -> return d.balance)
-      )
+      svgWidth = 1200
+      stack = d3.layout.stack()
+      states = 4
+      #color = d3.scale.linear().domain([1,4]).range(['blue','red'])
+      color = ['red','blue','green','yellow']
 
-      myMouseOverFunction = ->
-        circle = d3.select(this)
-        circle.transition().style('fill','white')
-        circleData = d3.select(this).data()
-        d3.select(".infobox").style("display", "block")
-        d3.select("p").text("The total of the order was $" + circleData[0].values[0].balance)
-      myMouseOutFunction = ->
-        circle = d3.select(this)
-        circle.transition().style("fill", (d) -> colors(Math.round(d.values[0].balance*20)))
-        d3.select(".infobox").style("display", "none")
+      nested_data = d3.nest()
+              .key( (d) -> return d.placed_at)
+              .entries(data.result)
 
-      myMouseMoveFunction = ->
-        infobox = d3.select(".infobox")
-        infobox.transition()
-        .style("left", (this.getAttribute('x') - 100) + 'px')
-        .style("top", (this.getAttribute('y') - 40) + 'px')
 
-      colors = d3.scale.linear().domain([1,100]).range(['yellow','red'])
+      orders_by_day = stack(d3.range(states).map(-> nested_data))
+
+      yGroupMax = d3.max(orders_by_day, (layer) -> d3.max(layer, (d) -> return d.y ))
+      yStackMax = d3.max(orders_by_day, (layer) ->  d3.max(layer, (d,i) -> return d.values))
+
+      x = d3.scale.ordinal()
+            .domain(d3.range(31))
+            .rangeRoundBands([0, svgWidth], .08)
+
+      y = d3.scale.linear()
+            .domain([0, 30])
+            .range([svgHeight, 0])
+
+      console.log(nested_data)
+      console.log(orders_by_day)
+
 
       bodySelection = d3.select("body")
 
-      svgSelection = bodySelection.append("svg")
-                            .attr("width", 1200)
+      svg = bodySelection.append("svg")
+                            .attr("width", svgWidth)
                             .attr("height", svgHeight)
 
+      layer = svg.selectAll(".layer")
+                 .data(orders_by_day)
+                 .enter().append("g")
+                 .attr("class", "layer")
+                 .style("fill", (d, i) -> color[i] )
 
-      circles = svgSelection.selectAll("rect")
-                          .data(nested_data)
-                          .enter()
-                          .append("rect")
-                          .on('mousemove', myMouseMoveFunction)
+      rect = layer.selectAll("rect")
+                  .data((d) -> d)
+                  .enter().append("rect")
+                  .attr("x", (d,i) -> x(i))
+                  .attr("y", svgHeight)
+                  .attr("width", 10)
+                  .attr("height", 0)
 
-      circleAttributes = circles
-                       .attr("x", (d,index) -> return index * 2)
-                       .attr("y", svgHeight)
-                       .attr("width", 2)
-                       .attr("height",0)
-                       .style("fill", 'white')
-                       .on("mouseout", myMouseOutFunction)
-                       .on("mouseover", myMouseOverFunction)
-
-      circles.transition()
-                       .delay((d,index) ->index * 10)
-                       .attr("x", (d,index) -> return index * 2)
-                       .attr("height", (d) -> return svgHeight-(svgHeight/d.values[0].balance))
-                       .attr("y", (d) -> return svgHeight/d.values[0].balance)
-                       .attr("width", 2)
-                       .style("fill", (d) -> colors(Math.round(d.values[0].balance*20)))
+      rect.transition()
+          .delay((d, i) ->  i * 10 )
+          .attr("y", (d) -> y(d.values.length))
+          .attr("height", (d,i) -> d.values[0].values[i].values.length)
 
     error: (xhr, status, err) ->
       console.log("nah "+err)
