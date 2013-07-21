@@ -24,13 +24,13 @@ $(document).ready ->
 
       yGroupMax = d3.max(orders_by_day, (layer) -> d3.max(layer, (d) -> return d.values.length ))
       yStackMax = d3.max(orders_by_day, (layer) ->  d3.max(layer, (d,i) -> return d.values.length))
-
+      console.log('yGroupMax: ' + yGroupMax + ', yStackMax: ' + yStackMax)
       x = d3.scale.ordinal()
             .domain(d3.range(31))
             .rangeRoundBands([0, svgWidth], .08)
 
       y = d3.scale.linear()
-            .domain([0, 30])
+            .domain([0, yGroupMax])
             .range([svgHeight, 0])
 
 
